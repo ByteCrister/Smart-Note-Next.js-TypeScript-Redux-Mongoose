@@ -1,16 +1,19 @@
 "use client";
 
-import { useShowToast } from "@/hooks/useShowToast";
-import { GET_API, POST_API } from "@/services/REST-API/API";
+import Toaster from "@/services/common/Toaster";
+import { GET_API, POST_API } from "@/services/helper/REST-API/API";
 import { userSignInType, userSignUpType } from "@/types/client/types";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 type AuthenticateOTPPropTypes = {
-    userInfo: userSignUpType | userSignInType | undefined
+    userInfo: userSignUpType | userSignInType | undefined;
+    setIsEmailChecked: Dispatch<SetStateAction<boolean>>;
+    setCurrentAuthPage: Dispatch<SetStateAction<0 | 2 | 1>>;
+    setPageState: Dispatch<SetStateAction<number>>
 };
 
-const AuthenticateOTP = ({ userInfo }: AuthenticateOTPPropTypes) => {
+const AuthenticateOTP = ({ userInfo, setIsEmailChecked, setCurrentAuthPage, setPageState }: AuthenticateOTPPropTypes) => {
     const [otp, setOtp] = useState<string>("");
     const [enteredOtp, setEnteredOtp] = useState<string[]>(Array(6).fill(""));
     const [currOtpBox, setCurrOtpBox] = useState<number>(0);
@@ -32,7 +35,7 @@ const AuthenticateOTP = ({ userInfo }: AuthenticateOTPPropTypes) => {
             if (remainingTimeRef.current <= 0) {
                 clearInterval(timerRef.current!);
                 setIsOtpExpired(true);
-                useShowToast(
+                Toaster(
                     "OTP expired. Please request a new one.",
                     "retry-warning",
                     handleGenerateOtp
@@ -47,7 +50,7 @@ const AuthenticateOTP = ({ userInfo }: AuthenticateOTPPropTypes) => {
         const URI = `${process.env.NEXT_PUBLIC_DOMAIN}/api/user/user-otp?email=${userInfo?.email}`;
         const responseData = await GET_API(URI);
         setOtp(responseData);
-        useShowToast("OTP is sent to your email.", "success");
+        Toaster("OTP is sent to your email.", "success");
 
         // Reset timer
         remainingTimeRef.current = 180;
@@ -73,26 +76,13 @@ const AuthenticateOTP = ({ userInfo }: AuthenticateOTPPropTypes) => {
     const signUpApi = async () => {
         try {
             await POST_API(`${process.env.NEXT_PUBLIC_DOMAIN}/api/user/signup`, { ...userInfo });
-            useShowToast('Successfully registered.', 'success');
+            Toaster('Successfully registered.', 'success');
             router.push('/');
-        } catch (error: any) {
-            console.log(error);
-            if (error.response && error.response.data) {
-                useShowToast(error.response.data.message || error.message, 'error');
-            }
-        }
-    };
-
-    // * Api function for sign In
-    const signInApi = async () => {
-        try {
-            await POST_API(`${process.env.NEXT_PUBLIC_DOMAIN}/api/user/auth-signin`, { ...userInfo });
-            useShowToast('Successfully signed in.', 'success');
-            router.push('/');
-        } catch (error: any) {
-            console.log(error);
-            if (error.response && error.response.data) {
-                useShowToast(error.response.data.message || error.message, 'error');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error(error);
+                const serverError = (error as { response?: { data?: { message: string } } }).response?.data;
+                Toaster(serverError?.message || error.message, 'error');
             }
         }
     };
@@ -156,14 +146,16 @@ const AuthenticateOTP = ({ userInfo }: AuthenticateOTPPropTypes) => {
     const verifyOtp = () => {
         const enteredOptStr = enteredOtp.join("");
         if (enteredOptStr === otp) {
-            useShowToast("OTP verified successfully!", "success");
+            Toaster("OTP verified successfully!", "success");
             if (userInfo && "first_name" in userInfo) {
                 signUpApi();
             } else {
-                signInApi();
+                setIsEmailChecked(true);
+                setCurrentAuthPage(2);
+                setPageState(0);
             }
         } else {
-            useShowToast("OTP is not matched. Please try again.", "retry-warning", handleGenerateOtp);
+            Toaster("OTP is not matched. Please try again.", "retry-warning", handleGenerateOtp);
         }
     };
 

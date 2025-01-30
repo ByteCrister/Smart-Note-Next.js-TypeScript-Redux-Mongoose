@@ -11,7 +11,7 @@ const GET_API = async (URL: string, config?: AxiosRequestConfig) => {
 };
 
 // POST request method
-const POST_API = async (URL: string, data: any, config?: AxiosRequestConfig) => {
+const POST_API = async (URL: string, data: unknown, config?: AxiosRequestConfig) => {
     try {
         const response: AxiosResponse = await axios.post(URL, data, config);
         return response.data;
@@ -21,7 +21,7 @@ const POST_API = async (URL: string, data: any, config?: AxiosRequestConfig) => 
 };
 
 // PUT request method
-const PUT_API = async (URL: string, data: any, config?: AxiosRequestConfig) => {
+const PUT_API = async (URL: string, data: unknown, config?: AxiosRequestConfig) => {
     try {
         const response: AxiosResponse = await axios.put(URL, data, config);
         return response.data;

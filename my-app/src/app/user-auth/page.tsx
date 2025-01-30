@@ -6,7 +6,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const tags = await fetchTagsFromAPI();
 
     return {
-        title: "Sign Up - Smart Note",
+        title: "User Authenticate - Smart Note",
         description: "Create an account with Smart Note and organize your notes effortlessly.",
         openGraph: {
             title: "Sign Up - Smart Note",

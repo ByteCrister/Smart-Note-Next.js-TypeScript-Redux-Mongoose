@@ -3,20 +3,21 @@
 export interface Note {
     note: string;
     createdAt: string;
-    modifiedAt: string;
+    updatedAt: string;
 }
 
 export interface Subject {
     name: string;
     notes: Note[];
     createdAt: string;
-    modifiedAt: string;
+    updatedAt: string;
 }
 
 export interface NoteState {
     user_id: string;
+    token: string;
     subjects: Subject[];
-    filteredSubjects: Subject[]
-    status: string,
-    error: string
+    selectedSubjectIndex: number | null;
+    status: string;
+    error: string;
 }

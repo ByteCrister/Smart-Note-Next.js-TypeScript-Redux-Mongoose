@@ -32,7 +32,13 @@ const passwordYupObject: () => Yup.StringSchema<string, Yup.AnyObject> = () => {
         .required("Password is required");
 };
 
-// * SignInValidation also can be used as forgot password validation
+export const forgotPassEmailValidation = Yup.object({
+    email: emailYupObject(),
+});
+export const forgotPassPasswordValidation = Yup.object({
+    password: passwordYupObject(),
+});
+
 export const signInValidation = Yup.object({
     email: emailYupObject(),
     password: passwordYupObject(),

@@ -1,21 +1,21 @@
 "use client";
 
-import { signUpValidation } from "@/services/helper/validation";
+import { signUpValidation } from "@/services/helper/common/validation";
 import { Dispatch, JSX, SetStateAction, useState } from "react";
 import { useFormik } from 'formik';
-import { POST_API } from "@/services/REST-API/API";
-import { useShowToast } from "@/hooks/useShowToast";
+import { POST_API } from "@/services/helper/REST-API/API";
 import { IoEyeSharp } from "react-icons/io5";
 import { IoEyeOffSharp } from "react-icons/io5";
 import { Open_Sans } from "next/font/google";
 import { userSignInType, userSignUpType } from "@/types/client/types";
+import Toaster from "@/services/common/Toaster";
 
 const openSans = Open_Sans({
     weight: '400',
     subsets: ['latin'],
 });
 
-// Typing for props
+// Prop Types
 type SignUpProps = {
     setPageState: Dispatch<SetStateAction<number>>;
     setUserInfo: Dispatch<SetStateAction<userSignUpType | userSignInType | undefined>>;
@@ -40,10 +40,12 @@ const SignUp = ({ setPageState, setUserInfo }: SignUpProps) => {
                 await POST_API(URI, data);
                 setPageState(1);
                 setUserInfo({ ...values })
-            } catch (error: any) {
-                console.log(error);
-                if (error.response && error.response.data) {
-                    useShowToast(error.response.data.message || error.message, 'error');
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error(error);
+
+                    const serverError = (error as { response?: { data?: { message: string } } }).response?.data;
+                    Toaster(serverError?.message || error.message, 'error');
                 }
             } finally {
                 setIsButtonLoading(false);
@@ -74,6 +76,7 @@ const SignUp = ({ setPageState, setUserInfo }: SignUpProps) => {
                     <input
                         type='text'
                         name="first_name"
+                        id="first_name"
                         required
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
@@ -88,6 +91,7 @@ const SignUp = ({ setPageState, setUserInfo }: SignUpProps) => {
                     <input
                         type='text'
                         name="last_name"
+                        id="last_name"
                         required
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
@@ -103,6 +107,7 @@ const SignUp = ({ setPageState, setUserInfo }: SignUpProps) => {
                 <input
                     type='email'
                     name="email"
+                    id="email"
                     required
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -118,6 +123,7 @@ const SignUp = ({ setPageState, setUserInfo }: SignUpProps) => {
                     <input
                         type={isPasswordShow ? 'text' : 'password'}
                         name="password"
+                        id="password"
                         required
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}

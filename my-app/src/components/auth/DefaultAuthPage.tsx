@@ -6,6 +6,7 @@ import SignUp from "./SignUp";
 import ForgotPassword from "./ForgotPassword";
 import AuthenticateOTP from "./AuthenticateOTP";
 import { userSignInType, userSignUpType } from "@/types/client/types";
+import React from "react";
 
 // Styling for buttons to indicate active state
 const buttonStyle = " font-semibold px-4 py-2 rounded-2xl md:rounded-full transition-all duration-300";
@@ -14,6 +15,8 @@ const DefaultAuthPage = () => {
     const [pageState, setPageState] = useState<number>(0);
     const [currentAuthPage, setCurrentAuthPage] = useState<0 | 1 | 2>(0);
     const [userInfo, setUserInfo] = useState<userSignUpType | userSignInType>();
+    // * State for Forgot Password Component
+    const [isEmailChecked, setIsEmailChecked] = useState<boolean>(false);
 
     const handleButtonClick = (page: 0 | 1 | 2) => {
         setCurrentAuthPage(page);
@@ -24,7 +27,7 @@ const DefaultAuthPage = () => {
             case 1:
                 return <SignUp setPageState={setPageState} setUserInfo={setUserInfo} />;
             case 2:
-                return <ForgotPassword />;
+                return <ForgotPassword setPageState={setPageState} setUserInfo={setUserInfo} userInfo={userInfo} isEmailChecked={isEmailChecked} />;
             default:
                 return <SignIn />;
         }
@@ -70,8 +73,8 @@ const DefaultAuthPage = () => {
                 </section>
             </div>
             // * after authenticating email an otp will be send on that email
-            : <AuthenticateOTP userInfo={userInfo} />
+            : <AuthenticateOTP userInfo={userInfo} setIsEmailChecked={setIsEmailChecked} setPageState={setPageState} setCurrentAuthPage={setCurrentAuthPage} />
     );
 };
 
-export default DefaultAuthPage;
+export default React.memo(DefaultAuthPage);

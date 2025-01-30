@@ -1,14 +1,14 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { signInValidation, signUpValidation } from "@/services/helper/validation";
+import { signInValidation } from "@/services/helper/common/validation";
 import { JSX, useState } from "react";
 import { useFormik } from 'formik';
-import { POST_API } from "@/services/REST-API/API";
-import { useShowToast } from "@/hooks/useShowToast";
+import { POST_API } from "@/services/helper/REST-API/API";
 import { IoEyeSharp } from "react-icons/io5";
 import { IoEyeOffSharp } from "react-icons/io5";
 import { Open_Sans } from "next/font/google";
+import { useRouter } from "next/navigation";
+import Toaster from "@/services/common/Toaster";
 
 const openSans = Open_Sans({
   weight: '400',
@@ -16,10 +16,9 @@ const openSans = Open_Sans({
 });
 
 const SignIn = () => {
+  const router = useRouter();
   const [isPasswordShow, setIsPasswordShow] = useState<boolean>(false);
-
   const [isButtonLoading, setIsButtonLoading] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
 
   const formik = useFormik({
     initialValues: {
@@ -32,11 +31,14 @@ const SignIn = () => {
         setIsButtonLoading(true);
         const URI = `${process.env.NEXT_PUBLIC_DOMAIN}/api/user/signin`;
         const data = { ...values };
-        const responseData = await POST_API(URI, data);
-      } catch (error: any) {
-        console.log(error);
-        if (error.response && error.response.data) {
-          useShowToast(error.response.data.message || error.message, 'error');
+        await POST_API(URI, data);
+        Toaster("Successfully signed in.", "success");
+        router.push("/");
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error(error);
+          const serverError = (error as { response?: { data?: { message: string } } }).response?.data;
+          Toaster(serverError?.message || error.message, 'error');
         }
       } finally {
         setIsButtonLoading(false);
@@ -66,6 +68,7 @@ const SignIn = () => {
         <input
           type='email'
           name="email"
+          id="email"
           required
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -81,13 +84,14 @@ const SignIn = () => {
           <input
             type={isPasswordShow ? 'text' : 'password'}
             name="password"
+            id="password"
             required
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder='password'
             value={formik.values.password}
             className={`w-full bg-white outline-none ${openSans.className} font-bold text-slate-500`} />
-          <button onClick={() => setIsPasswordShow(prev => !prev)}>
+          <button type="button" onClick={(e) => { e.preventDefault(); setIsPasswordShow(prev => !prev); }}>
             {isPasswordShow ? <IoEyeSharp className="text-slate-500" /> : <IoEyeOffSharp className="text-slate-500" />}
           </button>
         </div>

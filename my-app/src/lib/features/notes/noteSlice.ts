@@ -1,48 +1,56 @@
 "use client";
 
-import { FAILED, LOADING, SUCCEEDED } from "@/services/helper/constans";
-import { NoteState, Subject } from "@/types/redux-toolkit";
+import { FAILED, LOADING, SUCCEEDED } from "@/services/helper/common/constants";
+import getFetchNotes from "@/services/helper/REST-API/getFetchNotes";
+import { NoteState } from "@/types/redux-toolkit";
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 
+// const initialState: NoteState = {
+//     user_id: "",
+//     subjects: [
+//         {
+//             name: "sub1",
+//             notes: [
+//                 {
+//                     note: "note1",
+//                     createdAt: new Date().toISOString(),
+//                     modifiedAt: new Date().toISOString(),
+//                 },
+//                 {
+//                     note: "note2",
+//                     createdAt: new Date().toISOString(),
+//                     modifiedAt: new Date().toISOString(),
+//                 },
+//             ],
+//             createdAt: new Date().toISOString(),
+//             modifiedAt: new Date().toISOString(),
+//         },
+//         {
+//             name: "sub2",
+//             notes: [],
+//             createdAt: new Date().toISOString(),
+//             modifiedAt: new Date().toISOString(),
+//         },
+//     ],
+//     filteredSubjects: [],
+//     status: "",
+//     error: "",
+// };
 const initialState: NoteState = {
     user_id: "",
-    subjects: [
-        {
-            name: "sub1",
-            notes: [
-                {
-                    note: "note1",
-                    createdAt: new Date().toISOString(),
-                    modifiedAt: new Date().toISOString(),
-                },
-                {
-                    note: "note2",
-                    createdAt: new Date().toISOString(),
-                    modifiedAt: new Date().toISOString(),
-                },
-            ],
-            createdAt: new Date().toISOString(),
-            modifiedAt: new Date().toISOString(),
-        },
-        {
-            name: "sub2",
-            notes: [],
-            createdAt: new Date().toISOString(),
-            modifiedAt: new Date().toISOString(),
-        },
-    ],
-    filteredSubjects: [],
+    subjects: [],
+    selectedSubjectIndex: null,
     status: "",
     error: "",
+    token: "",
 };
 
 
 export const fetchNotes = createAsyncThunk(
     "notes/fetchNotes",
-    async () => {
-        const response = await axios.get(`/api/notes`);
-        return response.data;
+    async (token: string) => {
+        const responseData = await getFetchNotes(token);
+        return responseData;
     }
 );
 
@@ -52,49 +60,42 @@ const noteSlice = createSlice({
     reducers: {
         addSubject: (state, action: PayloadAction<string>) => {
             const timestamp = new Date().toISOString();
-            state.subjects.push({
+            state.subjects.unshift({
                 name: action.payload,
                 notes: [],
                 createdAt: timestamp,
-                modifiedAt: timestamp,
+                updatedAt: timestamp,
             });
         },
         deleteSubject: (state, action: PayloadAction<number>) => {
             state.subjects = state.subjects.filter((_, index) => index !== action.payload);
         },
-        addNote: (state, action: PayloadAction<{ subjectIndex: number; note: string }>) => {
-            const { subjectIndex, note } = action.payload;
-            const targetSubject = state.subjects.find((_, index) => index === subjectIndex);
-            if (targetSubject) {
-                const timestamp = new Date().toISOString();
-                targetSubject.notes.push({
-                    note,
-                    createdAt: timestamp,
-                    modifiedAt: timestamp,
-                });
-                targetSubject.modifiedAt = timestamp; // Update the subject's modifiedAt
-            }
+        updateSubject: (state, action: PayloadAction<{ subject: string, index: number }>) => {
+            state.subjects = state.subjects.map((item, index) => index === action.payload.index ? { ...item, name: action.payload.subject, updatedAt: new Date().toISOString() } : item);
         },
-        updateNote: (state, action: PayloadAction<{ subjectIndex: number; noteIndex: number; newNote: string }>) => {
-            const { subjectIndex, noteIndex, newNote } = action.payload;
-            const targetSubject = state.subjects.find((_, index) => index === subjectIndex);
-            if (targetSubject && targetSubject.notes[noteIndex]) {
-                const targetNote = targetSubject.notes[noteIndex];
-                targetNote.note = newNote;
-                targetNote.modifiedAt = new Date().toISOString();
-                targetSubject.modifiedAt = new Date().toISOString(); // Update the subject's modifiedAt
-            }
+        addNote: (state, action: PayloadAction<string>) => {
+            const timestamp = new Date().toISOString();
+            state.subjects[state.selectedSubjectIndex ? state.selectedSubjectIndex : 0].notes.unshift({
+                note: action.payload,
+                createdAt: timestamp,
+                updatedAt: timestamp,
+            });
+            state.subjects[state.selectedSubjectIndex ? state.selectedSubjectIndex : 0].updatedAt = timestamp;
         },
-        deleteNote: (state, action: PayloadAction<{ subjectIndex: number; noteIndex: number }>) => {
-            const { subjectIndex, noteIndex } = action.payload;
-            const targetSubject = state.subjects.find((_, index) => index === subjectIndex);
-            if (targetSubject) {
-                targetSubject.notes.splice(noteIndex, 1);
-                targetSubject.modifiedAt = new Date().toISOString(); // Update the subject's modifiedAt
-            }
+        updateNote: (state, action: PayloadAction<{ noteIndex: number; newNote: string }>) => {
+            state.subjects[state.selectedSubjectIndex ? state.selectedSubjectIndex : 0].notes = state.subjects[state.selectedSubjectIndex ? state.selectedSubjectIndex : 0].notes.map((note, index) => {
+                return action.payload.noteIndex === index ? { ...note, note: action.payload.newNote, updatedAt: new Date().toISOString() } : note
+            });
         },
-        setFilteredSubjects: (state, action: PayloadAction<Subject[]>) => {
-            state.filteredSubjects = action.payload;
+        deleteNote: (state, action: PayloadAction<number>) => {
+            state.subjects[state.selectedSubjectIndex ? state.selectedSubjectIndex : 0].notes = state.subjects[state.selectedSubjectIndex ? state.selectedSubjectIndex : 0].notes.filter((item, index) => {
+                return action.payload !== index
+            });
+        },
+        setSelectedSubjectIndex: (state, action: PayloadAction<number | null>) => {
+            // console.log(action.payload);
+            state.selectedSubjectIndex = action.payload;
+            // console.log(state.selectedSubjectIndex);
         }
     },
     extraReducers: (builder) => {
@@ -120,8 +121,9 @@ export const {
     deleteSubject,
     addNote,
     updateNote,
+    updateSubject,
     deleteNote,
-    setFilteredSubjects
+    setSelectedSubjectIndex,
 } = noteSlice.actions;
 
 export default noteSlice;
