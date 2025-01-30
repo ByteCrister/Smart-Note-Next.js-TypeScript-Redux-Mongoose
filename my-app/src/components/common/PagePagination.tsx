@@ -21,7 +21,7 @@ export default function PagePagination({ MainData, handleFilteredData, currentPa
     const startIndex = (currentPage - 1) * itemsPerPage;
     const newPaginateDate = MainData.slice(startIndex, startIndex + itemsPerPage);
     handleFilteredData(newPaginateDate);
-  }, [MainData, currentPage]);
+  }, [MainData, currentPage, handleFilteredData]);
 
   // Handle page navigation
   const goToPage = (page: number) => {

@@ -1,4 +1,4 @@
-import { emailAuthentication } from "@/config/modeMailer";
+import { emailAuthentication } from "@/config/nodeMailer";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
@@ -18,8 +18,9 @@ export const GET = async (req: NextRequest) => {
         await emailAuthentication(email, subject, html);
 
         return NextResponse.json(newOtp, { status: 200 });
-    } catch (error: any) {
-        console.log(error.message);
-        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            return NextResponse.json({ message: error.message, success: false }, { status: 500 });
+        }
     }
 }

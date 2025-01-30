@@ -70,6 +70,7 @@ const AuthenticateOTP = ({ userInfo, setIsEmailChecked, setCurrentAuthPage, setP
                 if (timerRef.current) clearInterval(timerRef.current);
             };
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userInfo?.email]);
 
     // * Api function for sign Up

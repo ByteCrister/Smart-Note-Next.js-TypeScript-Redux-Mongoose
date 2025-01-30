@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import nodemailer, { SentMessageInfo } from "nodemailer";
 
 export const emailAuthentication = async (To: string, subject: string, html: string) => {
     return new Promise((resolve, reject) => {
@@ -17,13 +17,19 @@ export const emailAuthentication = async (To: string, subject: string, html: str
             html: html,
         };
 
-        transporter.sendMail(mailOptions, (error: any, info: any) => {
+        transporter.sendMail(mailOptions, (error: Error | null, info: SentMessageInfo) => {
             if (error) {
-                console.error("Error sending email:", error);
+                console.error("Error sending email:", error.message);
                 reject(false);
             } else {
-                console.log("Message sent:", info.messageId);
-                console.log("Preview URL:", nodemailer.getTestMessageUrl(info));
+                console.log("✅ Message sent:", info.messageId);
+                
+                // This function only works with Ethereal Email (used for testing)
+                const previewUrl = nodemailer.getTestMessageUrl(info);
+                if (previewUrl) {
+                    console.log("🔍 Preview URL:", previewUrl);
+                }
+
                 resolve(true);
             }
         });
