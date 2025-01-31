@@ -50,7 +50,7 @@ const NotesTableContent = () => {
         < >
             {
                 status === LOADING ? <SkeletonSearchNav /> : <section className="w-full flex gap-2 justify-center items-center">
-                    <BackBtn /> <NoteSearch setData={setData} /> <AddNote />
+                    <BackBtn /> <NoteSearch setData={setData} currentPage={currentPage} /> <AddNote />
                 </section>
             }
             {

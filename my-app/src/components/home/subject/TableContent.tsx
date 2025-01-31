@@ -37,7 +37,7 @@ const SubjectTableContent = () => {
         < >
             {
                 status === LOADING ? <SkeletonSearchNav /> : <section className="w-full flex gap-2 justify-center items-center">
-                    <SubjectSearch setData={setData} /> <AddSubject />
+                    <SubjectSearch setData={setData} currentPage={currentPage}/> <AddSubject />
                 </section>
             }
             {

@@ -1,20 +1,24 @@
 "use client";
 
-import { useAppSelector } from "@/lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import SubjectTableContent from "./subject/TableContent";
 import NotesTableContent from "./subject-note/NotesTableContent";
 import { signOut } from "@/services/helper/REST-API/SignOut";
 import { useRouter } from "next/navigation";
+import { setStateClear } from "@/lib/features/notes/noteSlice";
 
 
 const Home = () => {
 
     const { selectedSubjectIndex } = useAppSelector((state) => state.noteStore);
+    const dispatch = useAppDispatch();
     const router = useRouter();
 
     const handleLogOut = async () => {
         if (await signOut()) {
+            console.log("Signing out...");
             router.push('/user-auth');
+            dispatch(setStateClear());
         }
     };
 

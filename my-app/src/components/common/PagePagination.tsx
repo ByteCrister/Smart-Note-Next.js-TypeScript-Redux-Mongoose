@@ -21,7 +21,8 @@ export default function PagePagination({ MainData, handleFilteredData, currentPa
     const startIndex = (currentPage - 1) * itemsPerPage;
     const newPaginateDate = MainData.slice(startIndex, startIndex + itemsPerPage);
     handleFilteredData(newPaginateDate);
-  }, [MainData, currentPage, handleFilteredData]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [MainData, currentPage]);
 
   // Handle page navigation
   const goToPage = (page: number) => {

@@ -96,6 +96,14 @@ const noteSlice = createSlice({
             // console.log(action.payload);
             state.selectedSubjectIndex = action.payload;
             // console.log(state.selectedSubjectIndex);
+        },
+        setStateClear: (state) => {
+            state.user_id = "";
+            state.subjects = [];
+            state.selectedSubjectIndex = null;
+            state.status = "";
+            state.error = "";
+            state.token = "";
         }
     },
     extraReducers: (builder) => {
@@ -124,6 +132,7 @@ export const {
     updateSubject,
     deleteNote,
     setSelectedSubjectIndex,
+    setStateClear,
 } = noteSlice.actions;
 
 export default noteSlice;

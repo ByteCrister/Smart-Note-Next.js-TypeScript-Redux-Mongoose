@@ -4,16 +4,17 @@ import CallSubjectSearch from "@/hooks/useSubjectSearch";
 
 type PropTypes = {
     setData: Dispatch<SetStateAction<Subject[] | null>>;
+    currentPage: number
 };
 
-const SubjectSearch = ({ setData }: PropTypes) => {
+const SubjectSearch = ({ setData, currentPage }: PropTypes) => {
     const [searchText, setSearchText] = useState("");
     const search = CallSubjectSearch();
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearchText(value);
-        search(value, setData);
+        search(currentPage, value, setData);
     };
 
     return (

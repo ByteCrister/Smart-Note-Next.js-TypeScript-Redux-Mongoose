@@ -9,6 +9,9 @@ import { IoEyeOffSharp } from "react-icons/io5";
 import { Open_Sans } from "next/font/google";
 import { useRouter } from "next/navigation";
 import Toaster from "@/services/common/Toaster";
+import { useAppDispatch } from "@/lib/hooks";
+import { fetchNotes } from "@/lib/features/notes/noteSlice";
+import validateToken from "@/services/helper/REST-API/validateToken";
 
 const openSans = Open_Sans({
   weight: '400',
@@ -19,6 +22,8 @@ const SignIn = () => {
   const router = useRouter();
   const [isPasswordShow, setIsPasswordShow] = useState<boolean>(false);
   const [isButtonLoading, setIsButtonLoading] = useState<boolean>(false);
+
+  const dispatch = useAppDispatch();
 
   const formik = useFormik({
     initialValues: {
@@ -33,7 +38,9 @@ const SignIn = () => {
         const data = { ...values };
         await POST_API(URI, data);
         Toaster("Successfully signed in.", "success");
+        const isTokenValid = await validateToken();
         router.push("/");
+        dispatch(fetchNotes(isTokenValid));
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error(error);

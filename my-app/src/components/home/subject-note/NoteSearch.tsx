@@ -4,16 +4,17 @@ import useNoteSearch from "@/hooks/useNoteSearch";
 
 type PropTypes = {
     setData: Dispatch<SetStateAction<Note[] | null>>;
+    currentPage: number;
 };
 
-const NoteSearch = ({ setData }: PropTypes) => {
+const NoteSearch = ({ setData, currentPage }: PropTypes) => {
     const [searchText, setSearchText] = useState("");
     const search = useNoteSearch();
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearchText(value);
-        search(value, setData);
+        search(currentPage, value, setData);
     };
 
     return (

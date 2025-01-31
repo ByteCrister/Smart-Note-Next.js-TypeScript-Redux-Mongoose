@@ -10,6 +10,9 @@ import { useRouter } from "next/navigation";
 import { forgotPassEmailValidation, forgotPassPasswordValidation } from "@/services/helper/common/validation";
 import { userSignInType, userSignUpType } from "@/types/client/types";
 import Toaster from "@/services/common/Toaster";
+import validateToken from "@/services/helper/REST-API/validateToken";
+import { useAppDispatch } from "@/lib/hooks";
+import { fetchNotes } from "@/lib/features/notes/noteSlice";
 
 const openSans = Open_Sans({
   weight: '400',
@@ -28,6 +31,8 @@ const ForgotPassword = ({ setPageState, setUserInfo, userInfo, isEmailChecked }:
   const router = useRouter();
   const [isPasswordShow, setIsPasswordShow] = useState<boolean>(false);
   const [isButtonLoading, setIsButtonLoading] = useState<boolean>(false);
+
+  const dispatch = useAppDispatch();
 
   const formik = useFormik({
     initialValues: {
@@ -72,7 +77,9 @@ const ForgotPassword = ({ setPageState, setUserInfo, userInfo, isEmailChecked }:
     try {
       await POST_API(`${process.env.NEXT_PUBLIC_DOMAIN}/api/user/forgot-password`, data);
       Toaster('Password Updated successfully.', 'success');
+      const token = await validateToken();
       router.push('/');
+      dispatch(fetchNotes(token));
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error(error);

@@ -1,7 +1,10 @@
 "use client";
 
+import { fetchNotes } from "@/lib/features/notes/noteSlice";
+import { useAppDispatch } from "@/lib/hooks";
 import Toaster from "@/services/common/Toaster";
 import { GET_API, POST_API } from "@/services/helper/REST-API/API";
+import validateToken from "@/services/helper/REST-API/validateToken";
 import { userSignInType, userSignUpType } from "@/types/client/types";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
@@ -25,6 +28,8 @@ const AuthenticateOTP = ({ userInfo, setIsEmailChecked, setCurrentAuthPage, setP
     // Refs to track mutable values
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const remainingTimeRef = useRef<number>(180);
+
+    const dispatch = useAppDispatch();
 
     // Start the countdown timer
     const startTimer = () => {
@@ -70,7 +75,7 @@ const AuthenticateOTP = ({ userInfo, setIsEmailChecked, setCurrentAuthPage, setP
                 if (timerRef.current) clearInterval(timerRef.current);
             };
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userInfo?.email]);
 
     // * Api function for sign Up
@@ -78,7 +83,9 @@ const AuthenticateOTP = ({ userInfo, setIsEmailChecked, setCurrentAuthPage, setP
         try {
             await POST_API(`${process.env.NEXT_PUBLIC_DOMAIN}/api/user/signup`, { ...userInfo });
             Toaster('Successfully registered.', 'success');
+            const token = await validateToken();
             router.push('/');
+            dispatch(fetchNotes(token));
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error(error);
@@ -144,7 +151,7 @@ const AuthenticateOTP = ({ userInfo, setIsEmailChecked, setCurrentAuthPage, setP
     };
 
     // OTP verification logic
-    const verifyOtp = () => {
+    const verifyOtp = async () => {
         const enteredOptStr = enteredOtp.join("");
         if (enteredOptStr === otp) {
             Toaster("OTP verified successfully!", "success");
@@ -155,6 +162,7 @@ const AuthenticateOTP = ({ userInfo, setIsEmailChecked, setCurrentAuthPage, setP
                 setCurrentAuthPage(2);
                 setPageState(0);
             }
+
         } else {
             Toaster("OTP is not matched. Please try again.", "retry-warning", handleGenerateOtp);
         }

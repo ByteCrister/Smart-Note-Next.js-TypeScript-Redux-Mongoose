@@ -4,14 +4,17 @@ import debounce from "lodash/debounce";
 import { useAppSelector } from "@/lib/hooks";
 import { DebouncedFunc } from "lodash";
 
-const useSubjectSearch = (): DebouncedFunc<(searchedValue: string, setData: Dispatch<SetStateAction<Subject[] | null>>) => void> => {
+const useSubjectSearch = (): DebouncedFunc<(currentPage: number, searchedValue: string, setData: Dispatch<SetStateAction<Subject[] | null>>) => void> => {
 
     const { subjects } = useAppSelector(state => state.noteStore);
 
-    return debounce((searchedValue: string, setData: Dispatch<SetStateAction<Subject[] | null>>) => {
+    return debounce((currentPage: number, searchedValue: string, setData: Dispatch<SetStateAction<Subject[] | null>>) => {
+        // * For paginate data, explain: for page 2 -> sliceSrt = 5, sliceEnd = 10 :: [].slice(5, 10)
+        const sliceSrt = (currentPage - 1) * 5;
+        const sliceEnd = currentPage * 5;
 
         // * step 1: add point field on each object
-        let newMainData = [...subjects.map((item) => ({ ...item, point: 0 }))];
+        let newMainData = [...subjects.slice(sliceSrt, sliceEnd).map((item) => ({ ...item, point: 0 }))];
 
         newMainData.forEach((outerItem, outerIndex) => {
 
