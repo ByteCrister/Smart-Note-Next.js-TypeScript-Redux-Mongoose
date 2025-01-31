@@ -153,7 +153,7 @@ const AuthenticateOTP = ({ userInfo, setIsEmailChecked, setCurrentAuthPage, setP
     // OTP verification logic
     const verifyOtp = async () => {
         const enteredOptStr = enteredOtp.join("");
-        if (enteredOptStr === otp) {
+        if (otp.trim().length !== 0 && enteredOptStr === otp) {
             Toaster("OTP verified successfully!", "success");
             if (userInfo && "first_name" in userInfo) {
                 signUpApi();

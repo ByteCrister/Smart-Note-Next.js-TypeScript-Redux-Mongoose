@@ -5,13 +5,13 @@ export const emailAuthentication = async (To: string, subject: string, html: str
         const transporter = nodemailer.createTransport({
             service: "Gmail",
             auth: {
-                user: process.env.EMAIL_AUTH,
-                pass: process.env.PASSWORD_AUTH,
+                user: process.env.NEXT_PUBLIC_EMAIL_AUTH,
+                pass: process.env.NEXT_PUBLIC_PASSWORD_AUTH,
             },
         });
 
         const mailOptions = {
-            from: `"Smart - Note" <${process.env.EMAIL_AUTH}>`,
+            from: `"Smart - Note" <${process.env.NEXT_PUBLIC_EMAIL_AUTH}>`,
             to: To,
             subject: subject,
             html: html,
@@ -23,7 +23,7 @@ export const emailAuthentication = async (To: string, subject: string, html: str
                 reject(false);
             } else {
                 console.log("✅ Message sent:", info.messageId);
-                
+
                 // This function only works with Ethereal Email (used for testing)
                 const previewUrl = nodemailer.getTestMessageUrl(info);
                 if (previewUrl) {
