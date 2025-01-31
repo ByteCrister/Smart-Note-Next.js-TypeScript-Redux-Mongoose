@@ -1,9 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 // GET request method
-const GET_API = async (URL: string, config?: AxiosRequestConfig) => {
+const GET_API = async (URL: string) => {
     try {
-        const response: AxiosResponse = await axios.get(URL, config);
+        const response = await axios.get(URL, { withCredentials: true });
         return response.data;
     } catch (error) {
         throw error;

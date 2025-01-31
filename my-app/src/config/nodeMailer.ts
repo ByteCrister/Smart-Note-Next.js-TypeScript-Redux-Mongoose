@@ -1,7 +1,7 @@
-import nodemailer, { SentMessageInfo } from "nodemailer";
+import nodemailer from "nodemailer";
 
 export const emailAuthentication = async (To: string, subject: string, html: string) => {
-    return new Promise((resolve, reject) => {
+    try {
         const transporter = nodemailer.createTransport({
             service: "Gmail",
             auth: {
@@ -17,21 +17,11 @@ export const emailAuthentication = async (To: string, subject: string, html: str
             html: html,
         };
 
-        transporter.sendMail(mailOptions, (error: Error | null, info: SentMessageInfo) => {
-            if (error) {
-                console.error("Error sending email:", error.message);
-                reject(false);
-            } else {
-                console.log("✅ Message sent:", info.messageId);
-
-                // This function only works with Ethereal Email (used for testing)
-                const previewUrl = nodemailer.getTestMessageUrl(info);
-                if (previewUrl) {
-                    console.log("🔍 Preview URL:", previewUrl);
-                }
-
-                resolve(true);
-            }
-        });
-    });
+        const info = await transporter.sendMail(mailOptions);
+        console.log("✅ Message sent:", info.messageId);
+        return true;
+    } catch (error) {
+        console.error("❌ Error sending email:", error);
+        throw new Error("Failed to send email. Check your SMTP settings.");
+    }
 };

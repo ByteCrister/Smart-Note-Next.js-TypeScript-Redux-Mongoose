@@ -3,9 +3,10 @@
 import { fetchNotes } from "@/lib/features/notes/noteSlice";
 import { useAppDispatch } from "@/lib/hooks";
 import Toaster from "@/services/common/Toaster";
-import { GET_API, POST_API } from "@/services/helper/REST-API/API";
+import { POST_API } from "@/services/helper/REST-API/API";
 import validateToken from "@/services/helper/REST-API/validateToken";
 import { userSignInType, userSignUpType } from "@/types/client/types";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
@@ -53,8 +54,8 @@ const AuthenticateOTP = ({ userInfo, setIsEmailChecked, setCurrentAuthPage, setP
 
     const handleGenerateOtp = async () => {
         const URI = `${process.env.NEXT_PUBLIC_DOMAIN}/api/user/user-otp?email=${userInfo?.email}`;
-        const responseData = await GET_API(URI);
-        setOtp(responseData);
+        const responseData = await axios.get(URI, { withCredentials: true })
+        setOtp(await responseData.data);
         Toaster("OTP is sent to your email.", "success");
 
         // Reset timer
