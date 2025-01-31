@@ -9,7 +9,7 @@ const connectDB = async () => {
   }
 
   try {
-    const FULL_URI = process.env.MONGO_URI + '/smart-note-1-1?retryWrites=true&w=majority&appName=Cluster0';
+    const FULL_URI = process.env.MONGODB_URI + '/smart-note-1-1?retryWrites=true&w=majority&appName=Cluster0';
     console.log('Full URI:', FULL_URI);
 
     const db = await mongoose.connect(FULL_URI);
