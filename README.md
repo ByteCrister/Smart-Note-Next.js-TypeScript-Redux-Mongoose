@@ -2,7 +2,7 @@
 
 ## 🚀 Overview
 
-This project is a web application for managing subjects and notes efficiently. Users can:
+This project is a web application for managing subjects and notes efficiently. My first typeScript project with latest technology and effective folder structure. Here user can:
 - **Create, update, and delete** subjects and notes.
 - **Search** for subjects and notes based on priority.
 - **Paginate** the subjects and notes table for better usability.
