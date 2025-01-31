@@ -37,7 +37,7 @@ export const POST = async (request: NextRequest) => {
 
         response.cookies.set(process.env.NEXT_TOKEN as string, token, {
             httpOnly: true,
-            secure: false, // true for production with HTTPS
+            secure: true, // true for production with HTTPS
             sameSite: "lax", 
             path: "/",
             maxAge: 30 * 24 * 60 * 60, 
